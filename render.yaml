@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: urna-do-povo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python conector_live.py
+    healthCheckPath: /healthz
+    envVars:
+      - key: TIKTOK_USERNAME
+        value: 01zeus00
