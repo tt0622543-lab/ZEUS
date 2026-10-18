@@ -58,7 +58,7 @@ async def connect_loop():
             await broadcast({"type":"status","message":"PAINEL NO AR — aguardando a LIVE de @"+USERNAME})
             try: await client.disconnect()
             except Exception: pass
-        await asyncio.sleep(30)
+        break
 
 async def on_startup(app):
     app["live_task"]=asyncio.create_task(connect_loop())
