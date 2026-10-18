@@ -48,13 +48,33 @@ async def gift(event):
     qty=max(1,int(getattr(event,"repeat_count",1) or 1))
     await broadcast({"type":"gift","username":user,"giftName":name,"quantity":qty})
 
-async def main():
+async def connect_loop():
+    while True:
+        try:
+            await broadcast({"type":"status","message":"Painel no ar; verificando a LIVE de @"+USERNAME})
+            await client.start()
+        except Exception as e:
+            logging.exception("Conector TikTok indisponível; o painel web continuará no ar.")
+            await broadcast({"type":"status","message":"PAINEL NO AR — aguardando a LIVE de @"+USERNAME})
+            try: await client.disconnect()
+            except Exception: pass
+        await asyncio.sleep(30)
+
+async def on_startup(app):
+    app["live_task"]=asyncio.create_task(connect_loop())
+async def on_cleanup(app):
+    app["live_task"].cancel()
+    try: await app["live_task"]
+    except asyncio.CancelledError: pass
+    try: await client.disconnect()
+    except Exception: pass
+
+def main():
     app=web.Application()
-    app.router.add_get("/",home); app.router.add_get("/healthz",health); app.router.add_get("/live-events",events_socket)
-    runner=web.AppRunner(app); await runner.setup()
-    await web.TCPSite(runner,HOST,PORT).start()
-    logging.info("Servidor em %s:%s; conectando a @%s",HOST,PORT,USERNAME)
-    try: await client.start()
-    except Exception: logging.exception("Falha ao conectar ao TikTok LIVE")
-    finally: await client.disconnect(); await runner.cleanup()
-if __name__=="__main__": asyncio.run(main())
+    app.router.add_get("/",home)
+    app.router.add_get("/healthz",health)
+    app.router.add_get("/live-events",events_socket)
+    app.on_startup.append(on_startup)
+    app.on_cleanup.append(on_cleanup)
+    web.run_app(app,host=HOST,port=PORT)
+if __name__=="__main__": main()
