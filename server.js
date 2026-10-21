@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'node:http';
 import { WebSocketServer } from 'ws';
-import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+import { TikTokLiveConnection, WebcastEvent, ControlEvent } from 'tiktok-live-connector';
 
 const app = express();
 const server = http.createServer(app);
@@ -66,13 +66,18 @@ async function connectToLive() {
     attachEvent('SHARE', 'share');
     attachEvent('SOCIAL', 'share');
     attachEvent('SUBSCRIBE', 'subscribe');
-    await liveConnection.connect();
-    status('connected');
-    console.log('Connected to TikTok LIVE:', USERNAME);
-    liveConnection.on(WebcastEvent.DISCONNECTED, () => {
+    // Control events belong to ControlEvent, not WebcastEvent.
+    liveConnection.on(ControlEvent.DISCONNECTED, () => {
       status('disconnected');
       scheduleReconnect();
     });
+    liveConnection.on(ControlEvent.ERROR, error => {
+      console.error('TikTok LIVE control error:', error?.message || error);
+      status('waiting-live');
+    });
+    await liveConnection.connect();
+    status('connected');
+    console.log('Connected to TikTok LIVE:', USERNAME);
   } catch (error) {
     console.error('TikTok LIVE connection failed:', error?.message || error);
     status('waiting-live');
