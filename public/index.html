@@ -202,11 +202,19 @@ function speak(text){
 function runSpeechQueue(){
   if(speaking||!speechQueue.length||!('speechSynthesis' in window))return;
   speaking=true; const text=speechQueue.shift(); caption.textContent=text;
-  const u=new SpeechSynthesisUtterance(text); u.lang='pt-BR'; u.rate=0.96; u.pitch=1.02; u.volume=1;
+  const u=new SpeechSynthesisUtterance(text); u.lang='pt-BR'; u.rate=1.02; u.pitch=0.88; u.volume=1;
   const voices=speechSynthesis.getVoices();
-  const v=voices.find(x=>/^pt-BR/i.test(x.lang)&&/natural|neural|google|microsoft|brasil/i.test(x.name))||voices.find(x=>/^pt-BR/i.test(x.lang))||voices.find(x=>/^pt/i.test(x.lang));
+  // Prefer a voz brasileira masculina mais natural que estiver instalada no Windows/navegador.
+  const ptbr=voices.filter(x=>/^pt-BR$/i.test(x.lang));
+  const v=ptbr.find(x=>/antonio|daniel|ricardo|mascul|male/i.test(x.name)&&/natural|online|neural/i.test(x.name))
+    ||ptbr.find(x=>/antonio|daniel|ricardo/i.test(x.name))
+    ||ptbr.find(x=>/natural|online|neural/i.test(x.name))
+    ||ptbr.find(x=>/microsoft|google/i.test(x.name))
+    ||ptbr[0]
+    ||voices.find(x=>/^pt/i.test(x.lang));
   if(v)u.voice=v;
-  u.onend=u.onerror=()=>{speaking=false;if(!speechQueue.length)stage.classList.remove('talking');runSpeechQueue()};
+  u.onend=()=>{speaking=false;if(!speechQueue.length)stage.classList.remove('talking');runSpeechQueue()};
+  u.onerror=()=>{speaking=false;if(!speechQueue.length)stage.classList.remove('talking');runSpeechQueue()};
   speechSynthesis.speak(u);
 }
 function stopSpeech(){speechQueue=[];if('speechSynthesis'in window)speechSynthesis.cancel();speaking=false;stage.classList.remove('talking');caption.textContent='Zeus está de olho no chat… 👀';}
