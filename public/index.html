@@ -26,7 +26,45 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 .controls{position:fixed;right:12px;bottom:12px;display:flex;gap:7px;z-index:5;opacity:.18;transition:opacity .2s}.controls:hover{opacity:1}
 button{border:1px solid #ffc72c;background:#101116;color:#ffd15b;border-radius:9px;padding:9px 12px;font-weight:700;cursor:pointer}
 @media(max-width:480px){.stage{width:100vw}.caption{bottom:4%}}
-</style></head>
+</style>
+<style id="zeus-pro-studio">
+:root{--gold:#f7b928;--gold2:#ffdc75;--ink:#07090e;--white:#f7f4ec}
+html,body{width:100%;height:100%;min-height:100%;overflow:hidden;background:#05070b}
+body{display:block;position:relative;background:radial-gradient(ellipse at 50% 46%,#34220e 0%,#15151b 30%,#080b12 67%,#030407 100%);isolation:isolate}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#05070bf2 0%,#05070b88 18%,transparent 34%,transparent 66%,#05070bb0 82%,#05070bf2 100%),repeating-linear-gradient(0deg,transparent 0 78px,#ffffff05 79px 80px),radial-gradient(ellipse at 15% 15%,#ffb32a25,transparent 28%),radial-gradient(ellipse at 85% 24%,#00aaff20,transparent 25%)}
+.stage{width:100vw;height:100dvh;max-width:none;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding-top:5vh;isolation:isolate}
+.stage:before{content:"";position:absolute;left:50%;top:13%;transform:translateX(-50%);width:min(48vw,66vh);aspect-ratio:1;border:2px solid #ffc72c66;border-radius:50%;z-index:-1;box-shadow:0 0 24px #ffb00044,0 0 90px #ff9f0a18,inset 0 0 50px #ffb00012;opacity:1}
+.stage:after{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(180deg,#07090d 0%,#16120d 46%,#050609 100%);pointer-events:none}
+.city{height:30%;opacity:.52;filter:drop-shadow(0 0 12px #ffb32355)}
+.flag{top:20%;right:25%;width:9%;opacity:.12;filter:blur(1px)}
+.brand{top:22px;left:24px;transform:none;font-size:clamp(14px,1.5vw,22px);letter-spacing:.15em;background:#080a0edb;border:1px solid #f7b92855;border-radius:14px;padding:11px 16px;box-shadow:0 8px 32px #0008}
+.avatar{width:min(66vw,78vh);height:auto;max-height:88vh;flex:0 1 auto;align-self:flex-end;margin-bottom:-2vh;filter:drop-shadow(0 22px 32px #000c) drop-shadow(0 0 24px #f3a91d18);animation:bob 4.8s ease-in-out infinite}
+.caption{bottom:26px;left:50%;max-width:min(48vw,640px);padding:13px 22px;border:1px solid #f7b928a8;border-radius:14px;background:linear-gradient(110deg,#090b10f5,#15120df2);font-size:clamp(13px,1.1vw,17px);letter-spacing:.01em;box-shadow:0 8px 28px #0009,0 0 24px #ffb00016}
+.connection{top:24px;right:24px;background:#090b10eF;border:1px solid #f7b92866;border-radius:999px;padding:10px 15px;font-size:12px;letter-spacing:.03em;box-shadow:0 8px 26px #0008}
+.controls{right:24px;bottom:24px;opacity:.72;gap:8px}
+.controls:hover{opacity:1}
+button{border:1px solid #f7b92888;background:#0b0d12f2;color:#ffdc75;border-radius:999px;padding:10px 15px;box-shadow:0 6px 18px #0008}
+button:hover{background:#2a2110;border-color:#ffdc75}
+body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fixed;left:24px;bottom:24px;z-index:4;color:#f7c75b99;font-size:10px;font-weight:800;letter-spacing:.16em;pointer-events:none}
+@media(min-width:900px){
+ .stage:before{left:50%;top:12%;width:min(43vw,68vh)}
+ .avatar{width:min(59vw,78vh)}
+ .brand{left:26px;top:26px}
+ .caption{bottom:26px}
+}
+@media(max-width:700px){
+ .brand{left:10px;top:10px;padding:8px 10px;font-size:12px}
+ .connection{right:10px;top:10px;padding:7px 10px;font-size:10px;max-width:48vw}
+ .stage:before{top:18%;width:74vw}
+ .avatar{width:100vw;max-height:80vh}
+ .caption{bottom:70px;max-width:90vw;padding:10px 13px}
+ .controls{right:8px;bottom:8px;opacity:.8}
+ body:after{display:none}
+}
+@media(prefers-reduced-motion:reduce){.avatar,.earL,.earR,.eyelid,.talking .mouth,.talking .head{animation:none!important}}
+</style>
+
+</head>
 <body>
 <main class="stage" id="stage" aria-label="Zeus IA avatar animado">
 <div class="flag" aria-label="Bandeira do Brasil"></div>
