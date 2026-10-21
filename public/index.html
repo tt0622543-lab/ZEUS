@@ -64,6 +64,29 @@ body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fi
 @media(prefers-reduced-motion:reduce){.avatar,.earL,.earR,.eyelid,.talking .mouth,.talking .head{animation:none!important}}
 </style>
 
+
+<style id="zeus-live-panels">
+.live-panel{position:absolute;z-index:4;top:30%;width:clamp(205px,22vw,310px);border:1px solid #f6bd4a55;border-radius:18px;background:linear-gradient(145deg,#080b10eF,#090a0ddd);box-shadow:0 18px 48px #0009,inset 0 1px #ffffff0a;backdrop-filter:blur(12px);overflow:hidden;color:#f6f3ec}
+.chat-panel{left:22px}.event-panel{right:22px}
+.panel-head{display:flex;align-items:center;gap:8px;padding:13px 14px;border-bottom:1px solid #f7b92833;color:#ffdb7a;font-size:11px;letter-spacing:.1em}
+.panel-head small{margin-left:auto;color:#a6acb8;font-size:9px;letter-spacing:.06em}
+.live-dot,.gold-dot{width:7px;height:7px;border-radius:50%;background:#ff3158;box-shadow:0 0 12px #ff3158;flex:none}
+.gold-dot{background:#f7bd3f;box-shadow:0 0 12px #f7bd3f}
+.chat-items{padding:7px 12px;display:flex;flex-direction:column;gap:2px;max-height:38vh;overflow:hidden}
+.chat-line{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #ffffff0b;min-width:0}
+.chat-avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#201b12;border:1px solid #e9b33e88;flex:none}
+.chat-line b,.event-row b{font-size:11px;color:#ffdf91;font-weight:750}.chat-line p{margin:3px 0 0;font-size:11px;line-height:1.4;color:#f1f0ee;overflow-wrap:anywhere}
+.chat-compose{margin:0 10px 10px;border:1px solid #ffffff1c;border-radius:999px;padding:9px 12px;color:#9299a5;font-size:10px;display:flex;gap:8px;align-items:center}
+.event-list{padding:9px;display:flex;flex-direction:column;gap:7px}
+.event-row{display:flex;gap:10px;align-items:center;padding:9px;border:1px solid #ffffff16;border-radius:12px;background:#ffffff04}
+.event-row>span{width:32px;height:32px;border:1px solid #eab53e;border-radius:50%;display:grid;place-items:center;color:#ffcf5a;font-size:16px;flex:none}
+.event-row small{display:block;color:#b6bbc4;font-size:10px;margin-top:4px}
+.commands{margin:0 10px 10px;padding:12px;border:1px solid #eab53e55;border-radius:12px;display:flex;flex-direction:column;gap:8px;font-size:10px;color:#ffda7b}
+.commands b{letter-spacing:.08em;margin-bottom:2px}.commands i{font-style:normal;color:#c2c6cf}
+@media(max-width:1000px){.live-panel{width:clamp(165px,23vw,220px);top:27%}.chat-panel{left:10px}.event-panel{right:10px}.chat-items{max-height:30vh}}
+@media(max-width:700px){.live-panel{display:none}}
+</style>
+
 </head>
 <body>
 <main class="stage" id="stage" aria-label="Zeus IA avatar animado">
@@ -131,6 +154,26 @@ body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fi
 </g>
 </svg>
 <div class="caption" id="caption">Salve, tropa! O Zeus chegou! ⚡</div>
+
+<aside class="live-panel chat-panel" aria-label="Chat da LIVE">
+  <div class="panel-head"><span class="live-dot"></span><strong>CHAT DA MATILHA</strong><small id="chat-count">AO VIVO</small></div>
+  <div class="chat-items" id="chat-items">
+    <div class="chat-line"><span class="chat-avatar">⚡</span><div><b>ZEUS IA</b><p>Salve, tropa! Chega junto na resenha! 🐾</p></div></div>
+    <div class="chat-line"><span class="chat-avatar">🐾</span><div><b>Chat da LIVE</b><p>As mensagens reais aparecem aqui quando conectar.</p></div></div>
+  </div>
+  <div class="chat-compose"><span>◉</span> Acompanhando o chat do TikTok LIVE</div>
+</aside>
+<aside class="live-panel event-panel" aria-label="Eventos da LIVE">
+  <div class="panel-head"><span class="gold-dot"></span><strong>EVENTOS ZEUS</strong><small>LIVE</small></div>
+  <div class="event-list" id="event-list">
+    <div class="event-row"><span>♙</span><div><b>Novo seguidor</b><small>Zeus dá as boas-vindas</small></div></div>
+    <div class="event-row"><span>♥</span><div><b>Curtidas</b><small>Agradece a energia da tropa</small></div></div>
+    <div class="event-row"><span>🎁</span><div><b>Presentes</b><small>Agradece quem fortalece</small></div></div>
+    <div class="event-row"><span>➦</span><div><b>Compartilhamentos</b><small>Chama mais gente pra LIVE</small></div></div>
+  </div>
+  <div class="commands"><b>COMANDOS DO ZEUS</b><span>!salve <i>— manda um salve</i></span><span>!pergunta <i>— pergunta algo</i></span><span>!jogo <i>— próximo jogo</i></span></div>
+</aside>
+
 </main>
 <div class="connection" id="connection">Zeus LIVE: conectando…</div>
 <div class="controls">
@@ -178,6 +221,17 @@ async function askZeusAI(name, comment){
   return false;
 }
 
+
+function addChatLine(name,message,kind='chat'){
+ const feed=document.getElementById('chat-items'); if(!feed)return;
+ const line=document.createElement('div'); line.className='chat-line';
+ const avatar=document.createElement('span');avatar.className='chat-avatar';avatar.textContent=kind==='gift'?'🎁':kind==='follow'?'♙':kind==='share'?'➦':'🐾';
+ const content=document.createElement('div');const title=document.createElement('b');title.textContent=clean(name||'Pessoa da LIVE').slice(0,40);
+ const p=document.createElement('p');p.textContent=clean(message).slice(0,160);
+ content.append(title,p);line.append(avatar,content);feed.prepend(line);
+ while(feed.children.length>6)feed.lastElementChild.remove();
+}
+
 function handleEvent(msg){
   if (msg?.event === 'zeusStatus') {
     const s = msg?.data?.status || 'conectando';
@@ -189,6 +243,8 @@ function handleEvent(msg){
   const d=msg?.data||msg; const name=getUser(d);
   const who=name ? name+', ' : '';
   const now=Date.now();
+  if(event==='chat'||event==='comment') addChatLine(name,d.comment||d.text||d.message||'', 'chat');
+  else if(['gift','follow','share','subscribe','member'].includes(event)) addChatLine(name,({gift:'mandou um presente 🎁',follow:'começou a seguir ⚡',share:'compartilhou a LIVE ➦',subscribe:'virou inscrito ⭐',member:'entrou na LIVE 👋'})[event]||'interagiu na LIVE',event);
   const lines={
     welcome:()=>pick(['Salve, '+(name||'família')+'! Chega mais que hoje tem resenha! ⚡','Opa, '+(name||'tropa')+'! O Zeus tá na área! Fica à vontade! 😂','Bem-vindo à matilha, '+(name||'meu parceiro')+'! Aqui é só energia boa!']),
     gift:()=>pick(['Ô '+(name||'meu consagrado')+'! Valeu demais pelo presente! Você fortalece o Zeus! ⚡','Aí sim, '+(name||'família')+'! Presente recebido com sucesso! Tamo junto!','Rapaz, desse jeito eu fico mimado! Obrigado pelo carinho, '+(name||'tropa')+'! 😂']),
