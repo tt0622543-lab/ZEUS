@@ -210,17 +210,17 @@ async function runSpeechQueue(){
   speaking=true;
   const text=speechQueue.shift();
   caption.textContent=text;
-  // Preferência: voz neural natural no servidor; se não estiver configurada, usa a voz instalada no navegador.
+  // Usa primeiro a voz Antônio instalada no Windows; mantém a voz neural apenas como reserva se não houver voz local.
+  const voices=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
+  const antonio=voices.find(v=>/^pt-BR$/i.test(v.lang)&&/ant[oô]nio|antonio/i.test(v.name));
+  if(antonio){selectedVoiceURI=antonio.voiceURI;fallbackSpeech(text);return;}
   try{
     const response=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
     if(response.ok){
-      const blob=await response.blob();
-      const url=URL.createObjectURL(blob);
-      currentAudio=new Audio(url);
+      const blob=await response.blob(); const url=URL.createObjectURL(blob); currentAudio=new Audio(url);
       currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;finishSpeech();};
       currentAudio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;fallbackSpeech(text);};
-      await currentAudio.play();
-      return;
+      await currentAudio.play(); return;
     }
   }catch(e){console.warn('Voz neural indisponível; usando voz local.');}
   fallbackSpeech(text);
@@ -356,7 +356,8 @@ function loadVoiceOptions(){
     select.appendChild(option);
   });
   const preferred=sorted.find(v=>v.voiceURI===selectedVoiceURI)
-    ||sorted.find(v=>/^pt-BR$/i.test(v.lang)&&/antonio|daniel|ricardo/i.test(v.name))
+    ||sorted.find(v=>/^pt-BR$/i.test(v.lang)&&/ant[oô]nio|antonio/i.test(v.name))
+    ||sorted.find(v=>/^pt-BR$/i.test(v.lang)&&/daniel|ricardo/i.test(v.name))
     ||sorted.find(v=>/^pt-BR$/i.test(v.lang))
     ||sorted.find(v=>/^pt/i.test(v.lang));
   if(preferred){selectedVoiceURI=preferred.voiceURI;select.value=selectedVoiceURI;}
