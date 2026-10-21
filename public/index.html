@@ -168,10 +168,20 @@ function runSpeechQueue(){
 }
 function stopSpeech(){speechQueue=[];if('speechSynthesis'in window)speechSynthesis.cancel();speaking=false;stage.classList.remove('talking');caption.textContent='Zeus está de olho no chat… 👀';}
 function getUser(d){return clean(d?.nickname||d?.user?.nickname||d?.user?.name||d?.uniqueId||d?.username||d?.user?.uniqueId||d?.displayName||d?.userName||'');}
+
+async function askZeusAI(name, comment){
+  try{
+    const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:name||'pessoa da LIVE',message:comment})});
+    const data=await response.json().catch(()=>({}));
+    if(response.ok&&data.answer){speak(data.answer);return true;}
+  }catch(e){console.warn('Zeus IA indisponível; usando resposta segura de reserva.');}
+  return false;
+}
+
 function handleEvent(msg){
   if (msg?.event === 'zeusStatus') {
     const s = msg?.data?.status || 'conectando';
-    const labels = { connected: 'conectado à LIVE', connecting: 'conectando ao TikTok…', 'waiting-live': 'aguardando a LIVE começar', disconnected: 'reconectando à LIVE…', starting: 'iniciando conexão' };
+    const labels = { connected: 'conectado à LIVE', connecting: 'conectando ao TikTok LIVE…', 'waiting-live': 'aguardando a LIVE começar', disconnected: 'reconectando à LIVE…', starting: 'iniciando conexão' };
     setStatus(labels[s] || s, s === 'connected');
     return;
   }
@@ -212,25 +222,25 @@ function handleEvent(msg){
     else if(hello){speak(pick([who+'salve! Tudo certo por aí? Chega mais pra resenha! ⚡',who+'opa, meu parceiro! O Zeus tá online e de olho no chat!','Salve, tropa! '+(name||'Você')+' chegou chegando! 😂']));}
     else if(thanks){speak(pick([who+'tamo junto demais! Aqui é parceria! ⚡',who+'é nóis! Obrigado pelo carinho, família!','Sempre junto, meu consagrado!']));}
     else if(asked){
-      speak(pick([who+'boa pergunta! Eu sou o Zeus, o bulldog da resenha. Escreve mais aí que eu acompanho o chat!','Boa, '+(name||'família')+'! Tô aqui pra interagir na LIVE. Manda a próxima! ⚡',who+'vou nessa contigo! Me conta mais um pouquinho no chat que a gente desenrola!','Opa, '+(name||'tropa')+'! Tô lendo vocês. Bora conversar e fortalecer a LIVE!']));
+      askZeusAI(name,comment).then(ok=>{if(!ok)speak(pick([who+'boa pergunta! Eu sou o Zeus, o bulldog da resenha. Manda mais aí que eu acompanho o chat!','Boa, '+(name||'família')+'! Tô aqui pra interagir na LIVE. Manda a próxima! ⚡',who+'vou nessa contigo! Me conta mais um pouquinho que a gente desenrola!','Opa, '+(name||'tropa')+'! Tô lendo vocês. Bora conversar e fortalecer a LIVE!']));});
     } else {
       speak(pick([who+'fala comigo, meu parceiro! O focinho tá ligado no chat! 😂',who+'eu ouvi meu nome? O Zeus tá na área! ⚡',who+'kkkk, gostei! Continua mandando mensagem que eu tô acompanhando!']));
     }
   }
 }
-function connectTikFinity(){
+function connectLive(){
   if(socket && socket.readyState===WebSocket.OPEN){setStatus('conectado',true);return}
   try{
     setStatus('abrindo conexão direta…');
     const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     socket=new WebSocket(wsProtocol + '//' + location.host + '/events');
     socket.onopen=()=>{setStatus('ponte online; verificando LIVE…',true);};
-    socket.onmessage=e=>{try{handleEvent(JSON.parse(e.data))}catch(err){console.warn('Evento TikFinity inválido',err)}};
+    socket.onmessage=e=>{try{handleEvent(JSON.parse(e.data))}catch(err){console.warn('Evento LIVE inválido',err)}};
     socket.onerror=()=>setStatus('falha ao conectar ao servidor LIVE');
     socket.onclose=()=>{setStatus('desconectado — recarregue para tentar novamente');};
   }catch(e){setStatus('não conectou ao servidor LIVE');}
 }
-document.getElementById('connect').addEventListener('click',connectTikFinity);
+document.getElementById('connect').addEventListener('click',connectLive);
 document.getElementById('talk').addEventListener('click',()=>speak(pick([
   'Salve, tropa! O Zeus chegou! Bora trocar uma ideia! ⚡',
   'Ô meu parceiro, já deixou o like ou veio só fiscalizar? 😂',
@@ -239,6 +249,6 @@ document.getElementById('talk').addEventListener('click',()=>speak(pick([
 ])));
 document.getElementById('stop').addEventListener('click',stopSpeech);
 if('speechSynthesis' in window)speechSynthesis.getVoices();
-// Conecta automaticamente ao servidor direto; nenhum TikFinity Desktop é necessário.
+// Conexão direta ao servidor do Zeus; nenhum conector externo é necessário.
 connectTikFinity();
 </script></body></html>
