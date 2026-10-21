@@ -94,9 +94,9 @@ button{border:1px solid #ffc72c;background:#101116;color:#ffd15b;border-radius:9
 </svg>
 <div class="caption" id="caption">Salve, tropa! O Zeus chegou! ⚡</div>
 </main>
-<div class="connection" id="connection">TikFinity: aguardando conexão…</div>
+<div class="connection" id="connection">Zeus LIVE: conectando…</div>
 <div class="controls">
-<button id="connect">Conectar TikFinity</button>
+<button id="connect">Conectar LIVE</button>
 <button id="talk">Testar voz</button>
 <button id="stop">Parar voz</button>
 </div>
@@ -111,7 +111,7 @@ const connection=document.getElementById('connection');
 let socket=null, lastLikeSpeech=0, lastJoinSpeech=0, speechQueue=[], speaking=false;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const clean=s=>String(s||'').replace(/[<>]/g,'').trim().slice(0,100);
-function setStatus(text,ok=false){connection.textContent='TikFinity: '+text;connection.style.color=ok?'#a8ffb0':'#ffd15b';}
+function setStatus(text,ok=false){connection.textContent='Zeus LIVE: '+text;connection.style.color=ok?'#a8ffb0':'#ffd15b';}
 function speak(text){
   text=clean(text); if(!text)return;
   caption.textContent=text; stage.classList.add('talking');
@@ -131,6 +131,12 @@ function runSpeechQueue(){
 function stopSpeech(){speechQueue=[];if('speechSynthesis'in window)speechSynthesis.cancel();speaking=false;stage.classList.remove('talking');caption.textContent='Zeus está de olho no chat… 👀';}
 function getUser(d){return clean(d?.nickname||d?.user?.nickname||d?.user?.name||d?.uniqueId||d?.username||d?.user?.uniqueId||d?.displayName||d?.userName||'');}
 function handleEvent(msg){
+  if (msg?.event === 'zeusStatus') {
+    const s = msg?.data?.status || 'conectando';
+    const labels = { connected: 'conectado à LIVE', connecting: 'conectando ao TikTok…', 'waiting-live': 'aguardando a LIVE começar', disconnected: 'conexão caiu; tentando reconectar', starting: 'iniciando conexão' };
+    setStatus(labels[s] || s, s === 'connected');
+    return;
+  }
   const event=String(msg?.event||msg?.type||msg?.data?.event||'').toLowerCase();
   const d=msg?.data||msg; const name=getUser(d);
   if(['member','join','viewerjoin','userjoin','roomuser'].includes(event)){
@@ -174,13 +180,14 @@ function handleEvent(msg){
 function connectTikFinity(){
   if(socket && socket.readyState===WebSocket.OPEN){setStatus('conectado',true);return}
   try{
-    setStatus('conectando…');
-    socket=new WebSocket('ws://localhost:21213/');
-    socket.onopen=()=>{setStatus('conectado',true);speak('Atenção, tropa! Zeus conectado ao TikFinity! Bora pra resenha! ⚡');};
+    setStatus('abrindo conexão direta…');
+    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    socket=new WebSocket(wsProtocol + '//' + location.host + '/events');
+    socket.onopen=()=>{setStatus('ponte online; verificando LIVE…',true);};
     socket.onmessage=e=>{try{handleEvent(JSON.parse(e.data))}catch(err){console.warn('Evento TikFinity inválido',err)}};
-    socket.onerror=()=>setStatus('erro de conexão — abra o TikFinity Desktop');
-    socket.onclose=()=>{setStatus('desconectado — clique para tentar novamente');};
-  }catch(e){setStatus('não conectou — confira o TikFinity Desktop');}
+    socket.onerror=()=>setStatus('falha ao conectar ao servidor LIVE');
+    socket.onclose=()=>{setStatus('desconectado — recarregue para tentar novamente');};
+  }catch(e){setStatus('não conectou ao servidor LIVE');}
 }
 document.getElementById('connect').addEventListener('click',connectTikFinity);
 document.getElementById('talk').addEventListener('click',()=>speak(pick([
@@ -191,4 +198,6 @@ document.getElementById('talk').addEventListener('click',()=>speak(pick([
 ])));
 document.getElementById('stop').addEventListener('click',stopSpeech);
 if('speechSynthesis' in window)speechSynthesis.getVoices();
+// Conecta automaticamente ao servidor direto; nenhum TikFinity Desktop é necessário.
+connectTikFinity();
 </script></body></html>
