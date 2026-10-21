@@ -94,17 +94,101 @@ button{border:1px solid #ffc72c;background:#101116;color:#ffd15b;border-radius:9
 </svg>
 <div class="caption" id="caption">Salve, tropa! O Zeus chegou! ⚡</div>
 </main>
-<div class="controls"><button id="talk">Testar fala</button><button id="stop">Parar</button></div>
+<div class="connection" id="connection">TikFinity: aguardando conexão…</div>
+<div class="controls">
+<button id="connect">Conectar TikFinity</button>
+<button id="talk">Testar voz</button>
+<button id="stop">Parar voz</button>
+</div>
+<style>
+.connection{position:fixed;top:12px;right:12px;z-index:6;background:#090a0ee8;border:1px solid #ffc72c99;border-radius:10px;padding:8px 11px;color:#ffd15b;font-size:12px;font-weight:750}
+.controls{position:fixed;right:12px;bottom:12px;display:flex;gap:7px;z-index:7;opacity:.35;transition:opacity .2s;flex-wrap:wrap;justify-content:flex-end}.controls:hover{opacity:1}
+@media(max-width:520px){.connection{top:6px;right:6px}.controls{right:6px;bottom:6px}}
+</style>
 <script>
 const stage=document.getElementById('stage'), caption=document.getElementById('caption');
-const lines=['Salve, tropa! O Zeus chegou! ⚡','Ô meu parceiro, já deixou o like ou veio só fiscalizar? 😂','Aqui é o Zeus, meu consagrado! Respeita o bulldog!','Manda energia pra live, família! Bora movimentar isso aqui!'];
-function speak(text){caption.textContent=text;stage.classList.add('talking');
- if(!('speechSynthesis' in window)){caption.textContent=text+' (voz não disponível neste navegador)';setTimeout(()=>stage.classList.remove('talking'),2500);return}
- speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1.03;u.pitch=.85;
- const voices=speechSynthesis.getVoices();const v=voices.find(x=>x.lang.toLowerCase().startsWith('pt-br'))||voices.find(x=>x.lang.toLowerCase().startsWith('pt'));if(v)u.voice=v;
- u.onend=()=>stage.classList.remove('talking');u.onerror=()=>stage.classList.remove('talking');speechSynthesis.speak(u);
+const connection=document.getElementById('connection');
+let socket=null, lastLikeSpeech=0, lastJoinSpeech=0, speechQueue=[], speaking=false;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clean=s=>String(s||'').replace(/[<>]/g,'').trim().slice(0,100);
+function setStatus(text,ok=false){connection.textContent='TikFinity: '+text;connection.style.color=ok?'#a8ffb0':'#ffd15b';}
+function speak(text){
+  text=clean(text); if(!text)return;
+  caption.textContent=text; stage.classList.add('talking');
+  if(!('speechSynthesis' in window)){setTimeout(()=>stage.classList.remove('talking'),2500);return}
+  speechQueue.push(text); runSpeechQueue();
 }
-document.getElementById('talk').addEventListener('click',()=>speak(lines[Math.floor(Math.random()*lines.length)]));
-document.getElementById('stop').addEventListener('click',()=>{if('speechSynthesis'in window)speechSynthesis.cancel();stage.classList.remove('talking');caption.textContent='Zeus está de olho no chat… 👀'});
-speechSynthesis?.getVoices?.();
+function runSpeechQueue(){
+  if(speaking||!speechQueue.length||!('speechSynthesis' in window))return;
+  speaking=true; const text=speechQueue.shift(); caption.textContent=text;
+  const u=new SpeechSynthesisUtterance(text); u.lang='pt-BR'; u.rate=0.96; u.pitch=1.02; u.volume=1;
+  const voices=speechSynthesis.getVoices();
+  const v=voices.find(x=>/^pt-BR/i.test(x.lang)&&/natural|neural|google|microsoft|brasil/i.test(x.name))||voices.find(x=>/^pt-BR/i.test(x.lang))||voices.find(x=>/^pt/i.test(x.lang));
+  if(v)u.voice=v;
+  u.onend=u.onerror=()=>{speaking=false;if(!speechQueue.length)stage.classList.remove('talking');runSpeechQueue()};
+  speechSynthesis.speak(u);
+}
+function stopSpeech(){speechQueue=[];if('speechSynthesis'in window)speechSynthesis.cancel();speaking=false;stage.classList.remove('talking');caption.textContent='Zeus está de olho no chat… 👀';}
+function getUser(d){return clean(d?.nickname||d?.user?.nickname||d?.user?.name||d?.uniqueId||d?.username||d?.user?.uniqueId||d?.displayName||d?.userName||'');}
+function handleEvent(msg){
+  const event=String(msg?.event||msg?.type||msg?.data?.event||'').toLowerCase();
+  const d=msg?.data||msg; const name=getUser(d);
+  if(['member','join','viewerjoin','userjoin','roomuser'].includes(event)){
+    // roomUser can be only a viewer-count update; greet only when a user name is present.
+    if(name && Date.now()-lastJoinSpeech>8000){lastJoinSpeech=Date.now();speak(pick([
+      'Ei, '+name+'! Volta aqui, meu parceiro! Pode ficar, vamos trocar uma ideia! 😂',
+      'Olha quem chegou, '+name+'! Chega mais, fica à vontade aqui com o Zeus! ⚡',
+      name+', não vai embora não! Senta aí com a tropa, bora conversar!'
+    ]));}
+  } else if(event==='gift'){
+    speak(pick(['Ô, meu consagrado! Valeu demais pelo apoio! Tamo junto, você fortalece nossa comunidade! ⚡',
+      'Aí sim, família! Obrigado pelo carinho! É desse jeito que a comunidade cresce. Tamo junto!',
+      'Meu parceiro, gratidão pelo apoio! Você é brabo! Bora crescer junto, tropa!']));
+  } else if(event==='share'){
+    speak(pick(['Aí sim! Valeu por compartilhar a LIVE! Bora trazer mais gente pra nossa família!',
+      'Tamo junto! Obrigado por espalhar a palavra do Zeus! A comunidade cresce com vocês!',
+      'Compartilhou? Aí é parceria de verdade! Valeu demais, família!']));
+  } else if(event==='follow'||event==='subscribe'){
+    speak(pick(['Seja muito bem-vindo à família Zeus! Tamo junto nessa caminhada!',
+      'Aí sim, mais um da tropa! Obrigado por fortalecer a comunidade!',
+      'Valeu pelo carinho, meu consagrado! Chega mais que aqui é resenha!']));
+  } else if(event==='like'){
+    const count=Number(d.likeCount||d.count||1);
+    if(count>=10 && Date.now()-lastLikeSpeech>25000){lastLikeSpeech=Date.now();speak(pick([
+      'Aí, família, essas curtidas tão vindo! Bora fortalecer a LIVE! Tamo junto!',
+      'Solta o dedo no like, tropa! Vocês ajudam demais a comunidade a crescer!',
+      'Isso aí, meu povo! Obrigado pelas curtidas! O Zeus tá de olho! ⚡']));}
+  } else if(event==='chat'||event==='comment'){
+    const comment=clean(d.comment||d.text||d.message||d.content||'');
+    if(!comment)return;
+    const low=comment.toLowerCase();
+    if(/\b(zeus|zeuz)\b/.test(low)||/[?？]$/.test(comment)){
+      const who=name?name+', ':'';
+      speak(pick([who+'fala comigo, meu parceiro! Tô aqui na resenha! 😂',
+        who+'boa pergunta, família! Conta mais aí no chat!',
+        who+'o Zeus tá na área! Bora trocar essa ideia!',
+        who+'kkkk, vocês não perdoam! Manda mais que eu tô lendo o chat!']));
+    }
+  }
+}
+function connectTikFinity(){
+  if(socket && socket.readyState===WebSocket.OPEN){setStatus('conectado',true);return}
+  try{
+    setStatus('conectando…');
+    socket=new WebSocket('ws://localhost:21213/');
+    socket.onopen=()=>{setStatus('conectado',true);speak('Atenção, tropa! Zeus conectado ao TikFinity! Bora pra resenha! ⚡');};
+    socket.onmessage=e=>{try{handleEvent(JSON.parse(e.data))}catch(err){console.warn('Evento TikFinity inválido',err)}};
+    socket.onerror=()=>setStatus('erro de conexão — abra o TikFinity Desktop');
+    socket.onclose=()=>{setStatus('desconectado — clique para tentar novamente');};
+  }catch(e){setStatus('não conectou — confira o TikFinity Desktop');}
+}
+document.getElementById('connect').addEventListener('click',connectTikFinity);
+document.getElementById('talk').addEventListener('click',()=>speak(pick([
+  'Salve, tropa! O Zeus chegou! Bora trocar uma ideia! ⚡',
+  'Ô meu parceiro, já deixou o like ou veio só fiscalizar? 😂',
+  'Aqui é o Zeus, meu consagrado! Respeita o bulldog!',
+  'Manda energia pra LIVE, família! Bora movimentar isso aqui!'
+])));
+document.getElementById('stop').addEventListener('click',stopSpeech);
+if('speechSynthesis' in window)speechSynthesis.getVoices();
 </script></body></html>
