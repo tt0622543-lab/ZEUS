@@ -178,6 +178,7 @@ body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fi
 <div class="connection" id="connection">Zeus LIVE: conectando…</div>
 <div class="controls">
 <button id="connect">Conectar LIVE</button>
+<select id="voice-select" aria-label="Voz do Zeus" title="Escolha a voz instalada" style="max-width:190px;background:#111;color:#ffd15b;border:1px solid #ffc72c99;border-radius:8px;padding:7px"></select>
 <button id="talk">Testar voz</button>
 <button id="stop">Parar voz</button>
 </div>
@@ -189,7 +190,7 @@ body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fi
 <script>
 const stage=document.getElementById('stage'), caption=document.getElementById('caption');
 const connection=document.getElementById('connection');
-let socket=null, lastLikeSpeech=0, lastJoinSpeech=0, speechQueue=[], speaking=false;
+let socket=null, lastLikeSpeech=0, lastJoinSpeech=0, speechQueue=[], speaking=false, selectedVoiceURI='';
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const clean=s=>String(s||'').replace(/[<>]/g,'').trim().slice(0,100);
 function setStatus(text,ok=false){connection.textContent='Zeus LIVE: '+text;connection.style.color=ok?'#a8ffb0':'#ffd15b';}
@@ -204,9 +205,10 @@ function runSpeechQueue(){
   speaking=true; const text=speechQueue.shift(); caption.textContent=text;
   const u=new SpeechSynthesisUtterance(text); u.lang='pt-BR'; u.rate=1.02; u.pitch=0.88; u.volume=1;
   const voices=speechSynthesis.getVoices();
-  // Prefer a voz brasileira masculina mais natural que estiver instalada no Windows/navegador.
   const ptbr=voices.filter(x=>/^pt-BR$/i.test(x.lang));
-  const v=ptbr.find(x=>/antonio|daniel|ricardo|mascul|male/i.test(x.name)&&/natural|online|neural/i.test(x.name))
+  const selected=selectedVoiceURI&&voices.find(x=>x.voiceURI===selectedVoiceURI);
+  const v=selected
+    ||ptbr.find(x=>/antonio|daniel|ricardo|mascul|male/i.test(x.name)&&/natural|online|neural/i.test(x.name))
     ||ptbr.find(x=>/antonio|daniel|ricardo/i.test(x.name))
     ||ptbr.find(x=>/natural|online|neural/i.test(x.name))
     ||ptbr.find(x=>/microsoft|google/i.test(x.name))
@@ -312,7 +314,39 @@ document.getElementById('talk').addEventListener('click',()=>speak(pick([
   'Manda energia pra LIVE, família! Bora movimentar isso aqui!'
 ])));
 document.getElementById('stop').addEventListener('click',stopSpeech);
-if('speechSynthesis' in window)speechSynthesis.getVoices();
+function loadVoiceOptions(){
+  const select=document.getElementById('voice-select');
+  if(!select||!('speechSynthesis' in window))return;
+  const voices=speechSynthesis.getVoices();
+  if(!voices.length){select.innerHTML='<option value="">Carregando vozes…</option>';return;}
+  const sorted=voices.slice().sort((a,b)=>{
+    const ap=/^pt-BR$/i.test(a.lang)?0:/^pt/i.test(a.lang)?1:2;
+    const bp=/^pt-BR$/i.test(b.lang)?0:/^pt/i.test(b.lang)?1:2;
+    return ap-bp||a.name.localeCompare(b.name);
+  });
+  select.innerHTML='';
+  sorted.forEach(v=>{
+    const option=document.createElement('option');
+    option.value=v.voiceURI;
+    option.textContent=v.name+' ('+v.lang+')'+(v.default?' — padrão':'');
+    select.appendChild(option);
+  });
+  const preferred=sorted.find(v=>v.voiceURI===selectedVoiceURI)
+    ||sorted.find(v=>/^pt-BR$/i.test(v.lang)&&/antonio|daniel|ricardo/i.test(v.name))
+    ||sorted.find(v=>/^pt-BR$/i.test(v.lang))
+    ||sorted.find(v=>/^pt/i.test(v.lang));
+  if(preferred){selectedVoiceURI=preferred.voiceURI;select.value=selectedVoiceURI;}
+}
+const voiceSelect=document.getElementById('voice-select');
+if(voiceSelect)voiceSelect.addEventListener('change',()=>{
+  selectedVoiceURI=voiceSelect.value;
+  stopSpeech();
+  speak('Salve, tropa! Testando a nova voz do Zeus. Bora trocar uma ideia!');
+});
+if('speechSynthesis' in window){
+  loadVoiceOptions();
+  speechSynthesis.addEventListener('voiceschanged',loadVoiceOptions);
+}
 // Conexão direta ao servidor do Zeus; nenhum conector externo é necessário.
-connectTikFinity();
+connectLive();
 </script></body></html>
