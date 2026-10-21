@@ -110,6 +110,9 @@ app.post('/api/chat', async (req, res) => {
   const username = String(req.body?.username || 'pessoa da LIVE').replace(/[<>\n\r]/g, '').slice(0, 40);
   const message = String(req.body?.message || '').replace(/[<>\r]/g, '').trim().slice(0, 500);
   if (!message) return res.status(400).json({ error: 'empty_message' });
+  if (/\\b(pol[ií]tica|pol[ií]tico|elei[cç][aã]o|candidat[oa]|partido pol[ií]tico|presidente|governo|futebol|Flamengo|Corinthians|Palmeiras|Vasco|Botafogo|Grêmio|Internacional|Santos FC|São Paulo FC)\\b/i.test(message)) {
+    return res.json({ configured: true, answer: 'Essa eu vou deixar de fora, meu parceiro! O Zeus mantém a LIVE neutra, sem política nem futebol. Bora falar de outra coisa? ⚡' });
+  }
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
