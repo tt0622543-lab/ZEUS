@@ -133,47 +133,50 @@ function getUser(d){return clean(d?.nickname||d?.user?.nickname||d?.user?.name||
 function handleEvent(msg){
   if (msg?.event === 'zeusStatus') {
     const s = msg?.data?.status || 'conectando';
-    const labels = { connected: 'conectado à LIVE', connecting: 'conectando ao TikTok…', 'waiting-live': 'aguardando a LIVE começar', disconnected: 'conexão caiu; tentando reconectar', starting: 'iniciando conexão' };
+    const labels = { connected: 'conectado à LIVE', connecting: 'conectando ao TikTok…', 'waiting-live': 'aguardando a LIVE começar', disconnected: 'reconectando à LIVE…', starting: 'iniciando conexão' };
     setStatus(labels[s] || s, s === 'connected');
     return;
   }
   const event=String(msg?.event||msg?.type||msg?.data?.event||'').toLowerCase();
   const d=msg?.data||msg; const name=getUser(d);
-  if(['member','join','viewerjoin','userjoin','roomuser'].includes(event)){
-    // roomUser can be only a viewer-count update; greet only when a user name is present.
-    if(name && Date.now()-lastJoinSpeech>8000){lastJoinSpeech=Date.now();speak(pick([
-      'Ei, '+name+'! Volta aqui, meu parceiro! Pode ficar, vamos trocar uma ideia! 😂',
-      'Olha quem chegou, '+name+'! Chega mais, fica à vontade aqui com o Zeus! ⚡',
-      name+', não vai embora não! Senta aí com a tropa, bora conversar!'
-    ]));}
+  const who=name ? name+', ' : '';
+  const now=Date.now();
+  const lines={
+    welcome:()=>pick(['Salve, '+(name||'família')+'! Chega mais que hoje tem resenha! ⚡','Opa, '+(name||'tropa')+'! O Zeus tá na área! Fica à vontade! 😂','Bem-vindo à matilha, '+(name||'meu parceiro')+'! Aqui é só energia boa!']),
+    gift:()=>pick(['Ô '+(name||'meu consagrado')+'! Valeu demais pelo presente! Você fortalece o Zeus! ⚡','Aí sim, '+(name||'família')+'! Presente recebido com sucesso! Tamo junto!','Rapaz, desse jeito eu fico mimado! Obrigado pelo carinho, '+(name||'tropa')+'! 😂']),
+    follow:()=>pick(['A matilha cresceu! Bem-vindo, '+(name||'meu parceiro')+'!','Valeu por seguir, '+(name||'família')+'! Agora você faz parte da tropa Zeus! ⚡','Seguiu o Zeus? Aí sim! Chega junto, '+(name||'consagrado')+'!']),
+    share:()=>pick(['Valeu por compartilhar, '+(name||'família')+'! Bora chamar a tropa toda!','Isso é parceria de verdade, '+(name||'meu parceiro')+'! Obrigado por divulgar a LIVE!','Compartilhou a LIVE? Você é brabo, '+(name||'tropa')+'!']),
+    like:()=>pick(['Tô vendo essas curtidas, família! Solta o dedo no coração! ⚡','Aí sim, tropa! Cada curtida dá força pro nosso cantinho!','O focinho tá feliz com esses likes! Bora bater mais uma meta! 😂'])
+  };
+  if(['member','join','viewerjoin','userjoin'].includes(event)){
+    if(name && now-lastJoinSpeech>10000){lastJoinSpeech=now;speak(lines.welcome());}
   } else if(event==='gift'){
-    speak(pick(['Ô, meu consagrado! Valeu demais pelo apoio! Tamo junto, você fortalece nossa comunidade! ⚡',
-      'Aí sim, família! Obrigado pelo carinho! É desse jeito que a comunidade cresce. Tamo junto!',
-      'Meu parceiro, gratidão pelo apoio! Você é brabo! Bora crescer junto, tropa!']));
+    if(now-(window.lastGiftSpeech||0)>1800){window.lastGiftSpeech=now;speak(lines.gift());}
   } else if(event==='share'){
-    speak(pick(['Aí sim! Valeu por compartilhar a LIVE! Bora trazer mais gente pra nossa família!',
-      'Tamo junto! Obrigado por espalhar a palavra do Zeus! A comunidade cresce com vocês!',
-      'Compartilhou? Aí é parceria de verdade! Valeu demais, família!']));
+    if(now-(window.lastShareSpeech||0)>2500){window.lastShareSpeech=now;speak(lines.share());}
   } else if(event==='follow'||event==='subscribe'){
-    speak(pick(['Seja muito bem-vindo à família Zeus! Tamo junto nessa caminhada!',
-      'Aí sim, mais um da tropa! Obrigado por fortalecer a comunidade!',
-      'Valeu pelo carinho, meu consagrado! Chega mais que aqui é resenha!']));
+    if(now-(window.lastFollowSpeech||0)>2500){window.lastFollowSpeech=now;speak(lines.follow());}
   } else if(event==='like'){
     const count=Number(d.likeCount||d.count||1);
-    if(count>=10 && Date.now()-lastLikeSpeech>25000){lastLikeSpeech=Date.now();speak(pick([
-      'Aí, família, essas curtidas tão vindo! Bora fortalecer a LIVE! Tamo junto!',
-      'Solta o dedo no like, tropa! Vocês ajudam demais a comunidade a crescer!',
-      'Isso aí, meu povo! Obrigado pelas curtidas! O Zeus tá de olho! ⚡']));}
+    if(count>=10 && now-lastLikeSpeech>25000){lastLikeSpeech=now;speak(lines.like());}
   } else if(event==='chat'||event==='comment'){
     const comment=clean(d.comment||d.text||d.message||d.content||'');
-    if(!comment)return;
+    if(!comment || now-(window.lastChatReply||0)<4500)return;
     const low=comment.toLowerCase();
-    if(/\b(zeus|zeuz)\b/.test(low)||/[?？]$/.test(comment)){
-      const who=name?name+', ':'';
-      speak(pick([who+'fala comigo, meu parceiro! Tô aqui na resenha! 😂',
-        who+'boa pergunta, família! Conta mais aí no chat!',
-        who+'o Zeus tá na área! Bora trocar essa ideia!',
-        who+'kkkk, vocês não perdoam! Manda mais que eu tô lendo o chat!']));
+    const asked= /[?？]$/.test(comment) || /\b(quem|como|qual|quando|onde|por que|porque|quanto|consegue|pode|faz|joga|jogar|fala)\b/i.test(low);
+    const called=/\b(zeus|zeuz|bulldog|cachorro)\b/i.test(low);
+    const rude=/\b(calado|burro|feio|lixo|ruim)\b/i.test(low);
+    const hello=/\b(oi|ola|olá|salve|eai|e aí|bom dia|boa tarde|boa noite)\b/i.test(low);
+    const thanks=/\b(obrigado|obrigada|valeu|tmj|tamo junto)\b/i.test(low);
+    if(!(called||asked||hello||thanks))return;
+    window.lastChatReply=now;
+    if(rude){speak(pick([who+'kkkk, hoje você acordou sem café, foi? 😂 Bora manter a resenha na paz! ',who+'aí você machuca meus sentimentos de bulldog! 😂 Mas segue o jogo, família!']));}
+    else if(hello){speak(pick([who+'salve! Tudo certo por aí? Chega mais pra resenha! ⚡',who+'opa, meu parceiro! O Zeus tá online e de olho no chat!','Salve, tropa! '+(name||'Você')+' chegou chegando! 😂']));}
+    else if(thanks){speak(pick([who+'tamo junto demais! Aqui é parceria! ⚡',who+'é nóis! Obrigado pelo carinho, família!','Sempre junto, meu consagrado!']));}
+    else if(asked){
+      speak(pick([who+'boa pergunta! Eu sou o Zeus, o bulldog da resenha. Escreve mais aí que eu acompanho o chat!','Boa, '+(name||'família')+'! Tô aqui pra interagir na LIVE. Manda a próxima! ⚡',who+'vou nessa contigo! Me conta mais um pouquinho no chat que a gente desenrola!','Opa, '+(name||'tropa')+'! Tô lendo vocês. Bora conversar e fortalecer a LIVE!']));
+    } else {
+      speak(pick([who+'fala comigo, meu parceiro! O focinho tá ligado no chat! 😂',who+'eu ouvi meu nome? O Zeus tá na área! ⚡',who+'kkkk, gostei! Continua mandando mensagem que eu tô acompanhando!']));
     }
   }
 }
