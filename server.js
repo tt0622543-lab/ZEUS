@@ -143,6 +143,49 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+
+const ttsWindow = new Map();
+app.post('/api/tts', async (req, res) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return res.status(503).json({ configured: false, error: 'voice_not_configured' });
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+  const now = Date.now();
+  const recent = (ttsWindow.get(ip) || []).filter(t => now - t < 60000);
+  if (recent.length >= 20) return res.status(429).json({ error: 'voice_rate_limited' });
+  recent.push(now); ttsWindow.set(ip, recent);
+  const text = String(req.body?.text || '').replace(/[<>\\r]/g, '').trim().slice(0, 450);
+  if (!text) return res.status(400).json({ error: 'empty_text' });
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts',
+        voice: process.env.OPENAI_TTS_VOICE || 'onyx',
+        input: text,
+        instructions: 'Fale em português brasileiro natural, com voz masculina adulta, calorosa, firme e descontraída, estilo streamer. Pronuncie claramente, sem exagerar na entonação. Não acrescente palavras ao texto.',
+        response_format: 'mp3'
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      console.error('Zeus TTS provider error:', response.status, detail.slice(0, 200));
+      return res.status(502).json({ error: 'voice_provider_error' });
+    }
+    const audio = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Cache-Control', 'no-store');
+    res.send(audio);
+  } catch (error) {
+    console.error('Zeus TTS request failed:', error?.name || 'Error');
+    res.status(504).json({ error: 'voice_timeout' });
+  }
+});
+
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'zeus-ia-live', status: state, username: USERNAME }));
 app.use(express.static('public'));
 wss.on('connection', ws => {
