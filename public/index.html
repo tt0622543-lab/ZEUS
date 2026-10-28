@@ -119,6 +119,39 @@ body:after{color:#f5c45188}
 @media(max-width:700px){.avatar{animation:none;filter:drop-shadow(0 10px 16px #0009)}}
 @media(prefers-reduced-motion:reduce){.avatar{animation:none!important}}
 </style>
+
+<style id="zeus-total-redesign">
+/* Redesign completo do painel: identidade francesa, escura e profissional; mantém a lógica LIVE existente. */
+:root{--gold:#f6c453;--gold2:#ffe5a0;--ink:#070a10;--white:#f2f5fa}
+html,body{background:#070a10!important;color:#f2f5fa}
+body{background:radial-gradient(ellipse at 50% 38%,#17202d 0%,#0b1019 42%,#05070c 82%)!important}
+body:before{background:linear-gradient(90deg,#070a10f5 0%,#070a10a8 18%,transparent 36%,transparent 64%,#070a10a8 82%,#070a10f5 100%),repeating-linear-gradient(0deg,transparent 0 68px,#dce8ff05 69px 70px),radial-gradient(ellipse at 50% 10%,#f6c45310,transparent 36%)!important}
+.stage{width:100vw;height:100dvh;max-width:none;padding:90px 0 76px;align-items:flex-end;justify-content:center;overflow:hidden}
+.stage:before{top:13%;left:50%;transform:translateX(-50%);width:min(39vw,62vh);border:1px solid #f6c45355;box-shadow:0 0 35px #f6c4531b,inset 0 0 45px #f6c4530a}
+.stage:after{background:linear-gradient(180deg,#080c13 0%,#121925 48%,#070a10 100%)}
+.city{height:23%;opacity:.35}
+.flag{opacity:.08;filter:blur(1px)}
+.brand{position:fixed;top:18px;left:20px;z-index:8;transform:none;display:flex;align-items:center;gap:9px;color:#ffe5a0;background:#0a0f18f5;border:1px solid #f6c45355;border-radius:14px;padding:12px 16px;font-size:20px;letter-spacing:.12em;box-shadow:0 10px 28px #0006}
+.brand span{color:#f5f7fb;font-weight:500}.brand small{display:block;margin-left:4px;color:#aab6c8;font-size:8px;letter-spacing:.13em}
+.avatar{width:min(47vw,70vh);height:auto;max-height:78vh;align-self:flex-end;margin:0 0 -1vh;filter:drop-shadow(0 22px 28px #000b) drop-shadow(0 0 22px #f6c45314);animation:bob 5.5s ease-in-out infinite}
+.caption{bottom:78px;left:50%;max-width:min(40vw,520px);padding:12px 18px;border:1px solid #f6c45377;border-radius:12px;background:#0a0f18f2;font-size:clamp(12px,1vw,15px);box-shadow:0 10px 28px #0008}
+.live-panel{position:fixed;top:104px;width:clamp(210px,21vw,285px);border:1px solid #9db1ca2b;border-radius:15px;background:#0a0f18f2;box-shadow:0 14px 34px #0007;backdrop-filter:none}
+.event-panel{left:20px;right:auto}.chat-panel{right:20px;left:auto}
+.panel-head{padding:14px;border-bottom:1px solid #f6c45324;color:#ffe0a0;font-size:10px}
+.chat-items{max-height:35vh}.chat-line{padding:8px 0}.chat-avatar{background:#111b29;border-color:#f6c45366}.chat-line b,.event-row b{color:#ffe0a0}.chat-line p{color:#d8e1ed}
+.chat-compose{border-color:#ffffff1b;color:#aeb9c9}
+.event-row{border-color:#ffffff12;background:#ffffff03}.event-row>span{border-color:#f6c45377;color:#ffe0a0}
+.commands{border-color:#f6c4532c;color:#ffe0a0}.commands i{color:#b8c4d5}
+.connection{top:20px;right:20px;padding:11px 15px;background:#0a0f18f5;border:1px solid #f6c45355;border-radius:999px;color:#ffe0a0;font-size:11px}
+.controls{position:fixed;bottom:16px;right:18px;opacity:1;gap:8px;z-index:9}
+.controls button,.controls select{background:#0b111c!important;color:#ffe0a0!important;border:1px solid #f6c45377!important;border-radius:10px!important;padding:10px 13px!important}
+.controls button:hover{background:#1a2637!important}
+body:after{content:"ZEUS IA  •  BULLDOG FRANCÊS  •  LIVE STUDIO";position:fixed;bottom:22px;left:22px;color:#a9b7ca;font-size:9px;font-weight:800;letter-spacing:.15em;z-index:8;pointer-events:none}
+@media(max-width:1050px){.live-panel{width:clamp(175px,23vw,225px)}.event-panel{left:10px}.chat-panel{right:10px}.avatar{width:min(48vw,66vh)}.stage:before{width:min(42vw,58vh)}}
+@media(max-width:700px){.stage{padding-top:70px;padding-bottom:65px}.live-panel{display:none}.avatar{width:94vw;max-height:77vh}.stage:before{top:20%;width:75vw}.brand{top:8px;left:8px;padding:8px 10px;font-size:14px}.brand small{font-size:6px}.connection{top:8px;right:8px;max-width:48vw;font-size:9px;padding:7px 9px}.caption{bottom:68px;max-width:88vw}.controls{bottom:6px;right:6px;left:6px;justify-content:center}.controls button,.controls select{font-size:10px;padding:8px!important}body:after{display:none}}
+@media(prefers-reduced-motion:reduce){.avatar{animation:none!important}}
+</style>
+
 </head>
 <body>
 <main class="stage" id="stage" aria-label="Zeus IA avatar animado">
@@ -130,7 +163,7 @@ body:after{color:#f5c45188}
 <path d="M272 118 L272 73 L328 73 L328 118Z" fill="#15130f" stroke="#ffc72c" stroke-width="2"/>
 <path d="M287 73 L287 47 L313 47 L313 73" fill="#15130f" stroke="#ffc72c" stroke-width="2"/>
 </svg>
-<div class="brand">⚡ ZEUS JOGOS INTERATIVOS</div>
+<div class="brand">♛ ZEUS <span>IA</span><small>SEMPRE COM VOCÊ NA SUA LIVE</small></div>
 <svg class="avatar" viewBox="0 0 600 760" role="img" aria-label="Bulldog preto e dourado animado">
 <defs>
  <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#30313a"/><stop offset=".38" stop-color="#111218"/><stop offset=".72" stop-color="#050609"/><stop offset="1" stop-color="#24242b"/></linearGradient>
@@ -144,8 +177,8 @@ body:after{color:#f5c45188}
 <path d="M270 610 L300 635 L330 610 L317 663 L300 647 L283 663Z" fill="url(#gold)"/>
 <!-- ears -->
 <g class="head">
-<g class="earL"><path d="M174 250 Q106 202 116 92 Q122 27 174 86 Q218 138 227 225Z" fill="url(#fur)" stroke="#050507" stroke-width="9"/><path d="M164 198 Q132 149 139 92 Q169 113 187 207Z" fill="#6e3e46"/></g>
-<g class="earR"><path d="M374 225 Q390 126 444 83 Q496 37 500 103 Q507 205 426 258Z" fill="url(#fur)" stroke="#050507" stroke-width="9"/><path d="M411 207 Q445 131 480 94 Q481 154 438 218Z" fill="#6e3e46"/></g>
+<g class="earL"><path d="M174 250 Q105 223 111 147 Q115 91 158 119 Q193 139 210 222Z" fill="url(#fur)" stroke="#050507" stroke-width="9"/><path d="M157 202 Q128 169 133 132 Q159 146 174 207Z" fill="#6e3e46"/></g>
+<g class="earR"><path d="M390 224 Q409 151 451 119 Q492 91 494 148 Q493 220 426 250Z" fill="url(#fur)" stroke="#050507" stroke-width="9"/><path d="M421 213 Q447 160 477 134 Q478 180 438 222Z" fill="#6e3e46"/></g>
 <!-- headset band -->
 <path d="M164 304 Q144 89 300 82 Q458 85 440 304" fill="none" stroke="#090a0e" stroke-width="34"/>
 <path d="M164 304 Q144 89 300 82 Q458 85 440 304" fill="none" stroke="url(#gold)" stroke-width="7"/>
