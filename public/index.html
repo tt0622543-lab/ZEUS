@@ -87,6 +87,38 @@ body:after{content:"ZEUS IA  /  JOGOS INTERATIVOS  •  LIVE STUDIO";position:fi
 @media(max-width:700px){.live-panel{display:none}}
 </style>
 
+
+<style id="zeus-streamer-refresh">
+/* Zeus Streamer Refresh — visual leve para Intel UHD / 4 GB RAM */
+:root{--gold:#f5c451;--gold2:#ffe39a;--ink:#080b12;--white:#f5f7fb}
+html,body{background:#070a11;color:var(--white)}
+body{background:radial-gradient(ellipse at 50% 46%,#182536 0%,#0b101a 42%,#06080e 78%);isolation:isolate}
+body:before{background:linear-gradient(90deg,#060910e8 0%,#06091088 17%,transparent 34%,transparent 66%,#06091088 83%,#060910e8 100%),repeating-linear-gradient(0deg,transparent 0 88px,#dbeaff04 89px 90px),radial-gradient(ellipse at 15% 16%,#f5c45112,transparent 28%),radial-gradient(ellipse at 85% 24%,#36b9ff12,transparent 25%)}
+.stage:before{border-color:#f5c45155;box-shadow:0 0 20px #f5c4511c,inset 0 0 35px #f5c45108}
+.stage:after{background:linear-gradient(180deg,#080b12 0%,#111925 48%,#07090f 100%)}
+.avatar{filter:drop-shadow(0 16px 24px #000b) drop-shadow(0 0 16px #f5c45112);animation:bob 6s ease-in-out infinite}
+.brand{color:#ffe3a0;background:#0a0e16eF;border:1px solid #f5c45155;border-radius:13px;padding:10px 14px;box-shadow:0 8px 24px #0005;font-size:clamp(12px,1.25vw,19px);letter-spacing:.13em}
+.caption{border:1px solid #f5c45188;border-radius:13px;background:linear-gradient(110deg,#0a0e16f5,#111a27f2);box-shadow:0 8px 24px #0007;font-weight:650}
+.live-panel{background:linear-gradient(145deg,#0b111ceF,#080c13f5);border-color:#8ca9c733;box-shadow:0 12px 32px #0006;backdrop-filter:none;border-radius:15px}
+.panel-head{color:#ffe09a;border-bottom-color:#f5c45128}
+.chat-avatar{background:#111b29;border-color:#f5c45166}
+.chat-line{border-bottom-color:#ffffff0a}
+.chat-line b,.event-row b{color:#ffe09a}
+.chat-line p{color:#d9e2ef}
+.event-row{border-color:#9bb2cf1c;background:#ffffff03;border-radius:10px}
+.event-row>span{border-color:#f5c45188;color:#ffe09a}
+.commands{border-color:#f5c45133;color:#ffe09a}
+.commands i{color:#c4cfdd}
+.connection{background:#0a1019f5;border-color:#f5c45166;color:#ffe09a;border-radius:999px;box-shadow:0 6px 20px #0005}
+.controls{opacity:.82;gap:6px}
+button{border:1px solid #f5c45177;background:#0b111bf5;color:#ffe09a;border-radius:999px;padding:9px 13px;box-shadow:none}
+button:hover{background:#182436;border-color:#ffe09a}
+#voice-select{background:#0b111b!important;color:#ffe09a!important;border:1px solid #f5c45166!important;border-radius:999px!important;padding:9px 12px!important;max-width:210px}
+body:after{color:#f5c45188}
+@media(max-width:1000px){.live-panel{background:#0a1019f7}}
+@media(max-width:700px){.avatar{animation:none;filter:drop-shadow(0 10px 16px #0009)}}
+@media(prefers-reduced-motion:reduce){.avatar{animation:none!important}}
+</style>
 </head>
 <body>
 <main class="stage" id="stage" aria-label="Zeus IA avatar animado">
@@ -210,10 +242,10 @@ async function runSpeechQueue(){
   speaking=true;
   const text=speechQueue.shift();
   caption.textContent=text;
-  // Usa primeiro a voz Antônio instalada no Windows; mantém a voz neural apenas como reserva se não houver voz local.
+  // Prioriza a voz escolhida no seletor local. Isso deixa a troca de voz funcional e evita depender de TTS externo.
   const voices=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
-  const antonio=voices.find(v=>/^pt-BR$/i.test(v.lang)&&/ant[oô]nio|antonio/i.test(v.name));
-  if(antonio){selectedVoiceURI=antonio.voiceURI;fallbackSpeech(text);return;}
+  const chosen=selectedVoiceURI&&voices.find(v=>v.voiceURI===selectedVoiceURI);
+  if(chosen){fallbackSpeech(text);return;}
   try{
     const response=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
     if(response.ok){
