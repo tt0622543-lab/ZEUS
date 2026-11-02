@@ -5,6 +5,7 @@ import { TikTokLiveClient, EventType } from 'piratetok-live-js';
 
 const app = express();
 app.use(express.json({ limit: '8kb' }));
+app.use((req,res,next)=>{const o=req.headers.origin||'';if(['https://zeus-ia-live.onrender.com','https://zeus-ia-direct-live.onrender.com'].includes(o)||o.startsWith('http://localhost:')){res.setHeader('Access-Control-Allow-Origin',o);res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Headers','Content-Type');res.setHeader('Access-Control-Allow-Methods','GET,POST,OPTIONS');}if(req.method==='OPTIONS')return res.sendStatus(204);next();});
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/events' });
 const PORT = process.env.PORT || 10000;
@@ -187,7 +188,7 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
-app.get('/health', (_req, res) => res.json({ ok: true, service: 'zeus-ia-live', status: state, username: USERNAME }));
+app.get('/health', (_req,res)=>res.json({ok:true,service:'zeus-ia-live',status:state,username:USERNAME,aiConfigured:Boolean(process.env.OPENAI_API_KEY)}));
 app.use(express.static('public'));
 wss.on('connection', ws => {
   clients.add(ws);

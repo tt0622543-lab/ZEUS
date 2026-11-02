@@ -1,6 +1,6 @@
 {
   "name": "zeus-ia-live",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,7 +12,6 @@
   "dependencies": {
     "express": "^5.1.0",
     "ws": "^8.18.3",
-    "tiktok-live-connector": "^2.5.0",
     "piratetok-live-js": "^0.3.0"
   }
 }
