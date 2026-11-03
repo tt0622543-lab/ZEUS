@@ -110,7 +110,8 @@ app.post('/api/chat', async (req, res) => {
   const recent = (chatWindow.get(ip) || []).filter(t => now - t < 60000);
   if (recent.length >= 8) return res.status(429).json({ error: 'rate_limited' });
   recent.push(now); chatWindow.set(ip, recent);
-  const username = String(req.body?.username || 'pessoa da LIVE').replace(/[<>\n\r]/g, '').slice(0, 40);
+  const username = String(req.body?.username || 'pessoa da LIVE').normalize('NFKC').replace(/[^\p{L}\p{N} _.-]/gu, '').replace(/[_.-]{2,}/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 32) || 'espectador';
+  const eventType = String(req.body?.eventType || 'chat').slice(0, 20);
   const message = String(req.body?.message || '').replace(/[<>\r]/g, '').trim().slice(0, 500);
   if (!message) return res.status(400).json({ error: 'empty_message' });
   if (/\\b(pol[ií]tica|pol[ií]tico|elei[cç][aã]o|candidat[oa]|partido pol[ií]tico|presidente|governo|futebol|Flamengo|Corinthians|Palmeiras|Vasco|Botafogo|Grêmio|Internacional|Santos FC|São Paulo FC)\\b/i.test(message)) {
