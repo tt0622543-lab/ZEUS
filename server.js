@@ -173,7 +173,7 @@ app.post('/api/tts', async (req, res) => {
     if (azureKey && azureRegion) {
       const region = azureRegion.trim().toLowerCase();
       const voice = process.env.AZURE_SPEECH_VOICE || 'pt-BR-AntonioNeural';
-      const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="${escapeXml(voice)}"><prosody rate="-8%" pitch="-14%">${escapeXml(text)}</prosody></voice></speak>`;
+      const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="${escapeXml(voice)}"><prosody rate="-12%" pitch="-18%">${escapeXml(text)}</prosody></voice></speak>`;
       response = await fetch(`https://${encodeURIComponent(region)}.tts.speech.microsoft.com/cognitiveservices/v1`, {
         method: 'POST',
         headers: {
@@ -193,7 +193,7 @@ app.post('/api/tts', async (req, res) => {
           model: process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts',
           voice: process.env.OPENAI_TTS_VOICE || 'onyx',
           input: text,
-          instructions: 'Fale em português brasileiro natural, com voz masculina adulta, grave, firme e descontraída, estilo interface hacker de streamer. Pronuncie claramente, sem exagerar na entonação. Não acrescente palavras ao texto.',
+          instructions: 'Fale em português brasileiro natural, com voz masculina adulta bem grave, encorpada, firme e calma, com presença de narrador de tecnologia hacker em uma LIVE. Ritmo um pouco mais lento, dicção limpa e natural em português brasileiro. Mantenha atitude confiante sem soar robótico ou exagerado. Não acrescente palavras ao texto.',
           response_format: 'mp3'
         }),
         signal: controller.signal
