@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <radialGradient id="bg"><stop stop-color="#173c28"/><stop offset=".72" stop-color="#07120c"/><stop offset="1" stop-color="#020604"/></radialGradient>
+ <linearGradient id="fur" x2="1" y2="1"><stop stop-color="#343a39"/><stop offset=".42" stop-color="#111515"/><stop offset="1" stop-color="#030606"/></linearGradient>
+ <linearGradient id="gold"><stop stop-color="#fff0a3"/><stop offset=".35" stop-color="#c68b24"/><stop offset=".7" stop-color="#ffdf72"/><stop offset="1" stop-color="#805016"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<circle cx="256" cy="256" r="249" fill="url(#bg)"/>
+<circle cx="256" cy="256" r="232" fill="none" stroke="#39ff88" stroke-width="4" opacity=".85" filter="url(#glow)"/>
+<circle cx="256" cy="256" r="215" fill="none" stroke="#39ff88" stroke-width="1.5" stroke-dasharray="5 11" opacity=".5"/>
+<!-- ears -->
+<path d="M115 204 Q63 153 72 61 Q78 21 113 51 L203 145Z" fill="#080d0b" stroke="#4c5a50" stroke-width="9"/>
+<path d="M397 204 Q449 153 440 61 Q434 21 399 51 L309 145Z" fill="#080d0b" stroke="#4c5a50" stroke-width="9"/>
+<path d="M104 129 Q100 78 116 82 L168 151Z M408 129 Q412 78 396 82 L344 151Z" fill="#292e2b"/>
+<!-- head -->
+<path d="M105 191 Q112 111 256 108 Q400 111 407 191 L400 300 Q386 394 256 406 Q126 394 112 300Z" fill="url(#fur)" stroke="#58635c" stroke-width="8"/>
+<path d="M125 249 Q165 207 213 239 Q230 255 216 286 Q188 317 133 291Z" fill="#090d0b"/>
+<path d="M387 249 Q347 207 299 239 Q282 255 296 286 Q324 317 379 291Z" fill="#090d0b"/>
+<!-- brows -->
+<path d="M133 225 Q176 188 217 221 M295 221 Q336 188 379 225" fill="none" stroke="#727b73" stroke-width="13" stroke-linecap="round"/>
+<!-- eyes -->
+<ellipse cx="180" cy="253" rx="22" ry="18" fill="#b4d7c0"/><ellipse cx="332" cy="253" rx="22" ry="18" fill="#b4d7c0"/>
+<circle cx="184" cy="254" r="9" fill="#090c0b"/><circle cx="328" cy="254" r="9" fill="#090c0b"/>
+<circle cx="187" cy="250" r="3.5" fill="#fff"/><circle cx="331" cy="250" r="3.5" fill="#fff"/>
+<!-- pirate patch left eye -->
+<path d="M137 225 Q180 195 222 225 L216 283 Q178 311 143 280Z" fill="#050707" stroke="#b9c5bc" stroke-width="5"/>
+<path d="M142 230 L214 281 M214 230 L143 281" stroke="#202a24" stroke-width="3"/>
+<path d="M137 228 Q107 191 92 173" fill="none" stroke="#d0d8d1" stroke-width="5" stroke-linecap="round"/>
+<!-- muzzle -->
+<path d="M151 304 Q179 272 223 293 Q256 310 289 293 Q333 272 361 304 Q364 361 309 373 Q256 387 203 373 Q148 361 151 304Z" fill="#777d75" stroke="#222b25" stroke-width="7"/>
+<path d="M219 309 Q256 286 293 309 Q289 336 256 342 Q223 336 219 309Z" fill="#030606" stroke="#9da69c" stroke-width="4"/>
+<path d="M256 342 L256 358 M256 358 Q229 380 204 357 M256 358 Q283 380 308 357" fill="none" stroke="#161c18" stroke-width="7" stroke-linecap="round"/>
+<!-- jowls -->
+<path d="M148 316 Q130 345 161 369 M364 316 Q382 345 351 369" fill="none" stroke="#a3aaa2" stroke-width="5" opacity=".55"/>
+<!-- cap -->
+<path d="M116 160 Q129 73 256 70 Q383 73 396 160 Q326 130 256 132 Q186 130 116 160Z" fill="#050907" stroke="#39ff88" stroke-width="6"/>
+<path d="M96 159 Q256 123 416 159 Q389 186 256 181 Q123 186 96 159Z" fill="#111b14" stroke="#718278" stroke-width="4"/>
+<text x="256" y="130" text-anchor="middle" fill="#39ff88" font-family="Arial,sans-serif" font-size="29" font-weight="900" letter-spacing="5">ZEUS</text>
+<!-- gold chain -->
+<path d="M143 390 Q256 463 369 390" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round"/>
+<path d="M151 390 Q256 451 361 390" fill="none" stroke="#fff0a3" stroke-width="3" stroke-dasharray="4 10"/>
+<path d="M256 425 L256 467" stroke="url(#gold)" stroke-width="7"/>
+<path d="M235 447 L256 432 L277 447 L256 473Z" fill="#0b130d" stroke="url(#gold)" stroke-width="5"/>
+<text x="256" y="458" text-anchor="middle" fill="#ffe49a" font-family="Arial" font-size="13" font-weight="bold">Z</text>
+<path d="M62 355 L79 345 M433 355 L450 345 M80 95 L91 108 M421 95 L410 108" stroke="#39ff88" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+</svg>
