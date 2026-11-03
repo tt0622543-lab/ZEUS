@@ -170,7 +170,7 @@ app.post('/api/tts', async (req, res) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);
     let response;
-    if (azureKey && azureRegion) {
+    if (process.env.ZEUS_TTS_PROVIDER === 'azure' && azureKey && azureRegion) {
       const region = azureRegion.trim().toLowerCase();
       const voice = process.env.AZURE_SPEECH_VOICE || 'pt-BR-AntonioNeural';
       const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="pt-BR"><voice name="${escapeXml(voice)}"><prosody rate="0%" pitch="0%">${escapeXml(text)}</prosody></voice></speak>`;
@@ -191,9 +191,9 @@ app.post('/api/tts', async (req, res) => {
         headers: { 'Authorization': 'Bearer ' + openaiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts',
-          voice: process.env.OPENAI_TTS_VOICE || 'onyx',
+          voice: process.env.OPENAI_TTS_VOICE || 'cedar',
           input: text,
-          instructions: 'Fale em português brasileiro natural, com voz masculina adulta, clara, acolhedora e natural. Use ritmo de conversa, dicção limpa e entonação amigável, sem efeito de voz hacker ou exagero. Não acrescente palavras ao texto.',
+          instructions: 'Fale em português brasileiro com voz masculina adulta, humana, calorosa e espontânea. Soe como um apresentador de live conversando com amigos: natural, expressivo, com pausas e entonação brasileira fluida. Dicção clara, energia simpática e sem tom robótico, sem exagerar. Não acrescente palavras ao texto.',
           response_format: 'mp3'
         }),
         signal: controller.signal
@@ -208,7 +208,7 @@ app.post('/api/tts', async (req, res) => {
     const audio = Buffer.from(await response.arrayBuffer());
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('X-Zeus-Voice', azureKey && azureRegion ? 'azure-pt-BR-AntonioNeural' : 'openai-onyx-fallback');
+    res.setHeader('X-Zeus-Voice', process.env.ZEUS_TTS_PROVIDER === 'azure' && azureKey && azureRegion ? 'azure-pt-BR-AntonioNeural' : 'openai-cedar');
     res.send(audio);
   } catch (error) {
     console.error('Zeus TTS request failed:', error?.name || 'Error');
