@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DESPERTA LIVE</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,sans-serif}
+#stage{position:relative;width:100vw;height:100vh;min-height:300px;overflow:hidden;background:linear-gradient(#17132c 0%,#49315f 60%,#20152b 100%);color:white}
+.wall{position:absolute;inset:0;background:radial-gradient(ellipse at 82% 22%,#8e65a4 0 3%,transparent 20%),linear-gradient(90deg,#211735 0 12%,transparent 12% 88%,#211735 88%)}
+.window{position:absolute;right:13%;top:9%;width:24%;height:40%;border:10px solid #332344;border-radius:12px;background:linear-gradient(#26375c,#785c89);box-shadow:0 0 30px #a77ac355}
+.moon{position:absolute;right:22%;top:15%;font-size:clamp(30px,6vw,75px)}
+.lamp{position:absolute;right:7%;top:34%;width:15%;height:4px;background:#e6b7ff;box-shadow:0 0 0 5px #49315f,0 0 0 9px #2d2140}
+.bed{position:absolute;left:12%;right:12%;bottom:10%;height:40%;background:#6d456c;border-radius:45px 45px 12px 12px;box-shadow:0 -12px 0 #a77ca0,0 22px 30px #08061188}
+.pillow{position:absolute;left:18%;top:13%;width:27%;height:35%;border-radius:45%;background:#f4d9ee;transform:rotate(-5deg)}
+.blanket{position:absolute;left:33%;right:4%;top:28%;bottom:5%;border-radius:45% 35% 10px 10px;background:linear-gradient(130deg,#bb83b9,#704b83);box-shadow:inset 0 10px 20px #f5c9ef55}
+.head{position:absolute;left:22%;top:4%;width:23%;height:48%;border-radius:48%;background:#e8b38f;z-index:2;transform:rotate(-8deg);box-shadow:inset -9px -4px #c98d78}
+.hair{position:absolute;left:19%;top:-2%;width:28%;height:44%;border-radius:55% 55% 30% 30%;background:#4a2634;z-index:3}
+.fringe{position:absolute;left:23%;top:8%;width:22%;height:20%;border-radius:50%;background:#4a2634;z-index:4;transform:rotate(15deg)}
+.eye{position:absolute;left:28%;top:28%;width:5%;height:2%;border-top:3px solid #4b2b32;z-index:5}
+.sleepZ{position:absolute;left:43%;top:8%;font-size:clamp(20px,4vw,48px);font-weight:bold;color:#fff;text-shadow:0 2px 10px #000;animation:float 2s infinite}
+@keyframes float{50%{transform:translate(12px,-16px);opacity:.5}}
+#shade{position:absolute;inset:0;background:#05030d66;transition:.4s;pointer-events:none}
+#glow{position:absolute;right:0;top:0;width:45%;height:65%;background:#ffe59a;filter:blur(65px);opacity:0;transition:.4s;pointer-events:none}
+#headline{position:absolute;top:5%;left:4%;font-size:clamp(15px,2.2vw,28px);font-weight:900;letter-spacing:.1em;text-shadow:0 2px 8px #000}
+#message{position:absolute;top:16%;left:50%;transform:translateX(-50%);font-size:clamp(20px,4vw,50px);font-weight:900;text-align:center;text-shadow:0 3px 12px #000;opacity:0;white-space:nowrap}
+#message.show{opacity:1}
+#flash{position:absolute;inset:0;opacity:0;pointer-events:none}
+#stage.awake #shade{background:#00000008}#stage.awake #glow{opacity:.8}
+#stage.alarm #shade{background:#00000005}#stage.alarm #glow{opacity:1}
+#stage.dance #shade{background:#00000005}#stage.dance #glow{opacity:1;background:#ff46d4;animation:party .4s infinite alternate}
+#stage.dance .blanket{animation:shimmy .22s infinite alternate}
+#stage.dance #flash{animation:blink .45s infinite;background:#fff}
+@keyframes party{to{filter:blur(85px) hue-rotate(180deg)}}@keyframes shimmy{to{transform:rotate(3deg) translateY(-8px)}}@keyframes blink{50%{opacity:.28}}
+#status{position:absolute;bottom:2%;left:2%;font-size:12px;color:#fff9}
+#test{position:absolute;bottom:12px;right:12px;display:flex;gap:6px;opacity:.12}#test:hover{opacity:1}
+button{border:0;border-radius:8px;padding:8px 10px;font-weight:bold;cursor:pointer}
+</style></head>
+<body><main id="stage" class="sleep">
+<div class="wall"></div><div class="window"></div><div class="moon">🌙</div><div class="lamp"></div>
+<div class="bed"><div class="pillow"></div><div class="head"></div><div class="hair"></div><div class="fringe"></div><div class="eye"></div><div class="blanket"></div></div>
+<div class="sleepZ" id="zzz">Z z z</div><div id="glow"></div><div id="shade"></div><div id="flash"></div>
+<div id="headline">DESPERTA LIVE · @01zeus00</div><div id="message">😴 Está dormindo...</div>
+<div id="status">Conectando aos eventos da LIVE…</div>
+<div id="test"><button onclick="react('light')">Luz</button><button onclick="react('alarm')">Alarme</button><button onclick="react('dance')">Dança teste</button></div>
+</main>
+<script>
+const stage=document.querySelector('#stage'),msg=document.querySelector('#message'),statusEl=document.querySelector('#status'),zzz=document.querySelector('#zzz');
+let timer;
+function react(mode,label){
+ clearTimeout(timer);stage.className=mode;msg.textContent=label||(mode==='light'?'💡 A luz acendeu!':mode==='alarm'?'⏰ TRIIIIIM! ACORDA!':mode==='dance'?'💃 HORA DA DANÇA!':'😴 Está dormindo...');
+ msg.classList.add('show');zzz.style.opacity=mode==='sleep'?'1':'0';
+ if(mode!=='sleep')timer=setTimeout(()=>react('sleep'),mode==='dance'?15000:6500);
+}
+function giftInfo(d){
+ const g=d.gift||{};const name=String(g.name||d.giftName||d.gift_name||'').toLowerCase();
+ const diamonds=Number(g.diamondCount||g.diamond_count||d.diamondCount||d.diamond_count||d.coins||0);
+ const count=Number(d.repeatCount||d.repeat_count||1);
+ return {name,points:diamonds*count};
+}
+function handleEvent(packet){
+ if(!packet||packet.event!=='gift')return;
+ const d=packet.data||{},g=giftInfo(d);
+ statusEl.textContent='Presente recebido: '+(g.name||'presente');
+ if(g.name.includes('pistola')||g.name.includes('gun')||g.points>=500)react('dance','💃 PRESENTE ESPECIAL! VAMOS DANÇAR!');
+ else if(g.name.includes('alarm')||g.name.includes('despert'))react('alarm');
+ else react('light');
+}
+function connect(){
+ const proto=location.protocol==='https:'?'wss:':'ws:';
+ const ws=new WebSocket(proto+'//'+location.host+'/events');
+ ws.onopen=()=>statusEl.textContent='Conectado · aguardando presentes da LIVE';
+ ws.onmessage=e=>{try{handleEvent(JSON.parse(e.data))}catch{}};
+ ws.onclose=()=>{statusEl.textContent='Reconectando aos eventos…';setTimeout(connect,3000)};
+ ws.onerror=()=>ws.close();
+}
+react('sleep');connect();
+</script></body></html>
