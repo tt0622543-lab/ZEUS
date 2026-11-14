@@ -1,5 +1,7 @@
 import express from 'express';
 import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { TikTokLiveClient, EventType } from 'piratetok-live-js';
 
@@ -226,7 +228,9 @@ app.post('/api/tts', async (req, res) => {
 });
 
 app.get('/health', (_req,res)=>res.json({ok:true,service:'zeus-ia-live',status:state,username:USERNAME,aiConfigured:Boolean(process.env.OPENAI_API_KEY)}));
-app.use(express.static('public'));
+const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+app.get('/desperta.html', (_req,res)=>res.sendFile(path.join(PUBLIC_DIR, 'desperta.html')));
+app.use(express.static(PUBLIC_DIR));
 wss.on('connection', ws => {
   clients.add(ws);
   ws.send(JSON.stringify({ event: 'zeusStatus', data: { status: state, username: USERNAME } }));
